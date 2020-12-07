@@ -237,9 +237,6 @@ while True:
     # This array contain the amount of crypto, in absolute terms, needed to rebalance
     buy_sell_adjustment = []
 
-    total_portfolio_value = 10000
-
-
     for x in range(0, len(dollar_value)):
         # Percent difference can be positive (need to buy more) or negative (need to sell)
 
@@ -253,7 +250,6 @@ while True:
 
     print("Disparity Check: " + str(disparity_check))
     print("Buy/Sell Adjustment: " + str(buy_sell_adjustment))
-    # disparity_check[2] = -0.000001
 
     # Determine whether to buy or sell each crypto
     # Give a dynamic margin, with a fixed dollar value of $10
