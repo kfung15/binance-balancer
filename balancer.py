@@ -158,6 +158,10 @@ def actual_order(side, pair, adjustment):
                 # check_status contains the float of the remaining crypto that needs to be sold
                 adjustment = check_status
 
+def swap(list,pos1,pos2):
+    list[pos1], list[pos2] = list[pos2], list[pos1]
+    return list
+
 while True:
     # First grab the wallet information
     servertime = requests.get("https://api.binance.com/api/v1/time")
@@ -250,6 +254,22 @@ while True:
 
     print("Disparity Check: " + str(disparity_check))
     print("Buy/Sell Adjustment: " + str(buy_sell_adjustment))
+
+    # Prioritize coins with disparity checks less than 0%.
+    # We want to SELL first in order to free up capital, before BUYING
+
+    swapper = 0
+    for x in range(0, len(disparity_check)):
+        if(disparity_check[x] < 0.0):
+            swap(free_coins,swapper,x)
+            swap(rearranged_cryptolist,swapper,x)
+            swap(trade_pairs,swapper,x)
+            swap(pair_confirm,swapper,x)
+            swap(prices_array,swapper,x)
+            swap(dollar_value,swapper,x)
+            swap(disparity_check,swapper,x)
+            swap(buy_sell_adjustment,swapper,x)
+            swapper = swapper + 1
 
     # Determine whether to buy or sell each crypto
     # Give a dynamic margin, with a fixed dollar value of $10
