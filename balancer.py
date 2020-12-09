@@ -4,6 +4,7 @@ import time
 import requests
 import json
 from urllib.parse import urlencode
+from datetime import datetime
 
 # Replace these two with your own. Find them at the API Management tab in Binance
 api_key = 'XXXX'
@@ -156,6 +157,7 @@ def actual_order(side, pair, adjustment):
                 raise Exception("Error occurred in cancellation process. Halting all trading activity now.")
             else:
                 # check_status contains the float of the remaining crypto that needs to be sold
+                print("Order was partially filled. Remaining crypto to purchase: " + str(check_status))
                 adjustment = check_status
 
 def swap(list,pos1,pos2):
@@ -163,6 +165,9 @@ def swap(list,pos1,pos2):
     return list
 
 while True:
+
+    startTime = time.time()
+
     # First grab the wallet information
     servertime = requests.get("https://api.binance.com/api/v1/time")
     servertimeobject = json.loads(servertime.text)
@@ -297,7 +302,7 @@ while True:
         else:
             trade_executed.append(False)
 
-    print("Trade Executed? " + str(trade_executed))
-
-    print("Balancing Completed. Going to sleep for a day!")
-    time.sleep(86400)
+    execution_time = int(time.time() - startTime)
+    print("Balancing Completed. Total execution time is " + str(execution_time) + " seconds.")
+    print("------------------------------------------------------------------")
+    time.sleep(86400 - int(time.time() - startTime))
