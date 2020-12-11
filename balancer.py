@@ -13,7 +13,7 @@ api_secret = 'YYYY'
 
 # Cryptos of interest
 # Replace/Add the cryptos you have in your SPOT account over here
-cryptos_list = ["BNB", "BTC", "XLM", "XMR", "XRP", "MANA", "ENJ", "RVN"]
+cryptos_list = ["XLM", "BTC", "XRP", "ENJ"]
 
 # Go to this website and check the "Minimum Trade Amount" column to figure out the precision
 # https://www.binance.com/en/trade-rule
@@ -63,7 +63,8 @@ def check_open_orders(symbol):
         return "Order Executed Successfully"
     elif(len(open_orders.json()) == 1) :
         # At this point, you either have a partially filled or not filled at all order
-        difference = float(open_orders.json()[0].get('origQty') - float(open_orders.json()[0].get('executedQty')))
+        # Will be rounded based on the proper precision
+        difference = round(float(open_orders.json()[0].get('origQty') - float(open_orders.json()[0].get('executedQty'))),precision.get(symbol))
         return difference
     else:
         # At this point, you have an error, because there should not be more than one active order at a time
@@ -191,6 +192,14 @@ while True:
         }
     )
 
+    # Next, import the weights calculated from the R files
+    with open('weights.json') as json_file:
+        weight_data = json.load(json_file)
+
+    weight_dict = {}
+    for x in range(0,len(weight_data)):
+        weight_dict[weight_data[x].get('Crypto')] = weight_data[x].get('Weight')
+
     # Next, get the amount of free coins from the entire crypto list
     free_coins = []
     rearranged_cryptolist = []
@@ -251,7 +260,8 @@ while True:
 
         # Right now it's set at 5% per asset, but this may or may not reflect your risk preferences
         # Consider adding a dictionary with different weights according to a custom algorithm
-        percent_difference = 0.05 - (dollar_value[x]/total_portfolio_value)
+        specific_weight = weight_dict.get(rearranged_cryptolist[x]);
+        percent_difference = specific_weight - (dollar_value[x]/total_portfolio_value)
         disparity_check.append(percent_difference)
 
         # Everything in buy_sell_adjustment needs to be positive. You cannot sell a negative amount of crypto.
